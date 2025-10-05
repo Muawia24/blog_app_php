@@ -3,10 +3,30 @@
 namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
+use Illuminate\Validation\Rule;
 use App\Models\User;
 
 class UserController extends Controller
 {
+    public function login(Request $request) {
+        $incomingData = $request->validate([
+            'loginname' => 'required',
+            'loginpassword' => 'required'
+        ]);
+
+        if (auth()->attempt(['name' => $incomingData['loginname'], 'password' => $incomingData['loginpassword']])) {
+            $request->session()->regenerate();
+            #return redirect('/');
+            
+        }
+        return redirect('/');
+    }
+
+    public function logout() {
+        auth()->logout();
+        return redirect('/');
+    }
+
     public function register(Request $request) {
         $incomingData = $request->validate([
             'name' => ['required', 'min:3', 'max:10', Rule::unique('users', 'name')],
